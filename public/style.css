@@ -1,23 +1,28 @@
-/* Placeholder for style.css */
 body {
   font-family: Arial, sans-serif;
   text-align: center;
   margin: 20px;
 }
 
-#game-board {
+.board {
   display: grid;
   grid-template-columns: repeat(3, 100px);
-  grid-gap: 10px;
+  grid-gap: 5px;
   justify-content: center;
+  margin: 20px auto;
 }
 
 .cell {
   width: 100px;
   height: 100px;
-  border: 1px solid black;
+  border: 2px solid #333;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 24px;
+  font-size: 48px;
+  cursor: pointer;
+}
+
+.cell:hover {
+  background-color: #f0f0f0;
 }
