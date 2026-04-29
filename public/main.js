@@ -20,6 +20,7 @@
     const loginBtn = document.getElementById('login-btn');
 
     const logoutBtn = document.getElementById('logout-btn');
+    const checkpointsLink = document.getElementById('checkpoints-link'); // Add this line
 
     // --- 2. INITIAL SESSION CHECK ---
     // When the page loads, ask the server if we are already logged in
@@ -40,12 +41,20 @@
       userInfo.style.display = 'block';     // Show "Logged in as..."
       gameSection.style.display = 'block';  // Show the game section (Header + Board)
       currentUserSpan.textContent = username;
+      // HIDE the checkpoints link when logged in
+      checkpointsLink.style.display = 'none'; 
+
+      currentUserSpan.textContent = username;
     }
 
     function showLoggedOut() {
       authContainer.style.display = 'grid';  // Show login/register cards
       userInfo.style.display = 'none';      // Hide "Logged in as..."
       gameSection.style.display = 'none';   // Hide the game section
+      currentUserSpan.textContent = '';
+      // SHOW the checkpoints link when logged out
+      checkpointsLink.style.display = 'inline-block'; 
+
       currentUserSpan.textContent = '';
     }
 

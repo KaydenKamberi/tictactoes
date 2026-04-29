@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Checkpoints - Tic Tac Toe AI</title>
+  <style>
+    body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 20px; background: #0f172a; color: #f8fafc; }
+    h1 { color: #38bdf8; border-bottom: 2px solid #334155; padding-bottom: 10px; }
+    section { background: #1e293b; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #334155; }
+    h2 { color: #38bdf8; margin-top: 0; }
+    strong { color: #94a3b8; }
+    a { color: #38bdf8; }
+  </style>
+</head>
+<body>
+
+  <h1>My Build Process</h1>
+
+  <section id="cp02">
+    <h2>CP02-accounts</h2>
+    <p><strong>The tag:</strong> <code>CP02-accounts</code></p>
+    <p><strong>GitHub Link:</strong> <a href="REPLACE_WITH_YOUR_GITHUB_COMMIT_LINK">View Code for CP02</a></p>
+
+    <p><strong>What I built:</strong> I implemented a full user authentication system. This includes backend Express routes for registration, login, and logout, and a frontend that communicates with these routes using the Fetch API. User data is persisted in a local JSON file.</p>
+
+    <p><strong>What was hard:</strong> The most difficult part was managing the file structure. I accidentally created duplicate folders and files, which made the server and .gitignore act unpredictably until I flattened the tree back to the root.</p>
+
+    <p><strong>What I'd do differently:</strong> I would stick strictly to the required file structure from the very beginning to avoid having to move files and fix broken paths later.</p>
+
+    <p><strong>AI usage note:</strong> AI helped me write the session logic and fetch calls, but I had to manually troubleshoot why my 'View Checkpoints' button wasn't disappearing because the ID wasn't defined correctly in my script.</p>
+
+    <p><strong>A/B testing note:</strong> I tried hiding only the 3x3 board div, but switched to hiding the entire game section so the "Game" header wouldn't stay visible to logged-out users.</p>
+  </section>
+
+  <section id="cp01">
+    <h2>CP01-world</h2>
+    <p><strong>The tag:</strong> <code>CP01-world</code></p>
+    <p><strong>GitHub Link:</strong> <a href="https://github.com/KaydenKamberi/tictactoes/commit/9111426677fd9301a94e0dcb39ea3a9887b5b4b0">View Code for CP01</a></p>
+
+    <p><strong>What I built:</strong> I set up the basic Node.js and Express environment. I created the public folder for static files and established the initial server.js entry point to serve the index.html file.</p>
+
+    <p><strong>What was hard:</strong> Learning how Git tracks (and ignores) files was new to me, especially setting up the .gitignore for the first time to keep the node_modules folder out of the repo.</p>
+
+    <p><strong>What I'd do differently:</strong> I would have read the project brief more carefully regarding naming conventions like 'main.js' versus 'script.js' before I started coding.</p>
+
+    <p><strong>AI usage note:</strong> I used AI to generate the initial Express boilerplate, but I had to fix the port configuration to make sure it worked on my specific development environment.</p>
+
+    <p><strong>A/B testing note:</strong> I compared using a simple 'Hello World' text response versus sending a full HTML file; I chose the HTML file because it felt like a more realistic starting point for a web app.</p>
+  </section>
+
+</body>
+</html>

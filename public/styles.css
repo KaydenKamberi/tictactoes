@@ -103,3 +103,20 @@ button:hover {
   cursor: pointer;
   border-radius: 4px;
 }
+.nav-button {
+  display: inline-block;
+  margin: 1rem 0 2rem;
+  padding: 0.6rem 1.2rem;
+  background-color: transparent;
+  color: #38bdf8;
+  border: 2px solid #38bdf8;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.nav-button:hover {
+  background-color: #38bdf8;
+  color: #0f172a;
+}
