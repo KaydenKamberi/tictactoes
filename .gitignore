@@ -1,18 +1,4 @@
-# Dependencies
 node_modules/
-
-# Environment variables
 .env
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-
-# IDE
-.idea/
-.vscode/
-
-# OS
-.DS_Store
-Thumbs.db
+data/users.json
+data/games.json

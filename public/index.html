@@ -1,36 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tic Tac Toe AI</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <h1>Tic Tac Toe AI</h1>
-  <div id="auth-container">
-    <div id="login-form">
-      <h3>Login</h3>
-      <input type="text" id="login-username" placeholder="Username">
-      <input type="password" id="login-password" placeholder="Password">
-      <button id="login-btn">Login</button>
-    </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic Tac Toe AI</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Tic Tac Toe AI</h1>
 
-    <div id="register-form">
-      <h3>Register</h3>
-      <input type="text" id="reg-username" placeholder="Username">
-      <input type="password" id="reg-password" placeholder="Password">
-      <button id="reg-btn">Sign Up</button>
-    </div>
-  </div>
+      <section id="auth-container">
+        <div class="auth-card">
+          <h2>Register</h2>
+          <input id="reg-username" type="text" placeholder="Username" />
+          <input id="reg-password" type="password" placeholder="Password" />
+          <button id="reg-btn">Create account</button>
+        </div>
 
-  <div id="user-info" style="display: none;">
-    <p>Logged in as: <span id="current-user"></span></p>
-    <button id="logout-btn">Logout</button>
-  </div>
+        <div class="auth-card">
+          <h2>Log in</h2>
+          <input id="login-username" type="text" placeholder="Username" />
+          <input id="login-password" type="password" placeholder="Password" />
+          <button id="login-btn">Log in</button>
+        </div>
+      </section>
 
-  <div id="game-board" class="board"></div>
+      <section id="user-info" style="display: none;">
+        <p>Signed in as <span id="current-user"></span></p>
+        <button id="logout-btn">Log out</button>
+      </section>
 
-  <script src="main.js"></script>
-</body>
+      <section id="game-section">
+        <h2>Game</h2>
+        <div id="game-board" class="board"></div>
+      </section>
+    </main>
+
+    <script src="/main.js"></script>
+  </body>
 </html>

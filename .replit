@@ -40,5 +40,5 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd project && npm start"
+args = "npm start"
 waitForPort = 5173

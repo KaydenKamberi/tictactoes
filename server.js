@@ -1,96 +1,94 @@
+require('dotenv').config();
+
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const session = require('express-session');
-const dotenv = require('dotenv');
-const path = require('path');
-const fs = require('fs');
-
-dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5173;
 
-// Path to our users database
-const USERS_FILE = path.join(__dirname, 'data', 'users.json');
+const DATA_DIR = path.join(__dirname, 'data');
+
+function readJson(name, fallback = []) {
+  const file = path.join(DATA_DIR, name);
+  try {
+    if (!fs.existsSync(file)) return fallback;
+    const raw = fs.readFileSync(file, 'utf8').trim();
+    if (!raw) return fallback;
+    return JSON.parse(raw);
+  } catch (err) {
+    return fallback;
+  }
+}
+
+function writeJson(name, data) {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+  fs.writeFileSync(path.join(DATA_DIR, name), JSON.stringify(data, null, 2));
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'dev-only-secret-change-me',
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'tic-tac-toe-secret',
-  resave: false,
-  saveUninitialized: false, // Changed to false so we only save sessions for logged-in users
-}));
 
-// Helper function to read users
-const getUsers = () => {
-  try {
-    const data = fs.readFileSync(USERS_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (err) {
-    return [];
-  }
-};
-
-// Helper function to save users
-const saveUsers = (users) => {
-  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-};
-
-// --- AUTH ROUTES ---
-
-// Register
-app.post('/register', (req, res) => {
-  const { username, password } = req.body;
-  const users = getUsers();
-
-  if (users.find(u => u.username === username)) {
-    return res.status(400).json({ error: 'Username already exists' });
-  }
-
-  const newUser = { username, password }; // Storing plaintext per project brief
-  users.push(newUser);
-  saveUsers(users);
-
-  req.session.user = newUser;
-  res.json({ message: 'Registration successful', user: newUser.username });
-});
-
-// Login
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  const users = getUsers();
-
-  const user = users.find(u => u.username === username && u.password === password);
-
-  if (!user) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
-
-  req.session.user = user;
-  res.json({ message: 'Login successful', user: user.username });
-});
-
-// Logout
-app.post('/logout', (req, res) => {
-  req.session.destroy();
-  res.json({ message: 'Logged out successfully' });
-});
-
-// Check current session
 app.get('/me', (req, res) => {
-  if (req.session.user) {
-    res.json({ user: req.session.user.username });
-  } else {
-    res.status(401).json({ error: 'Not logged in' });
+  res.json({ user: req.session.user || null });
+});
+
+app.post('/register', (req, res) => {
+  const { username, password } = req.body || {};
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
   }
+
+  const users = readJson('users.json', []);
+  if (users.find((u) => u.username === username)) {
+    return res.status(409).json({ error: 'That username is already taken' });
+  }
+
+  // Plaintext storage is intentional per the project brief (learning only).
+  users.push({ username, password });
+  writeJson('users.json', users);
+
+  req.session.user = username;
+  res.json({ user: username });
 });
 
-// --- MAIN ROUTE ---
+app.post('/login', (req, res) => {
+  const { username, password } = req.body || {};
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
+  }
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const users = readJson('users.json', []);
+  const found = users.find(
+    (u) => u.username === username && u.password === password
+  );
+  if (!found) {
+    return res.status(401).json({ error: 'Invalid username or password' });
+  }
+
+  req.session.user = username;
+  res.json({ user: username });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.post('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.json({ ok: true });
+  });
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
 });
