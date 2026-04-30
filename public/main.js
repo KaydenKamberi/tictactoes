@@ -21,6 +21,7 @@
 
     const logoutBtn = document.getElementById('logout-btn');
     const checkpointsLink = document.getElementById('checkpoints-link'); // Add this line
+    const turnIndicator = document.getElementById('turn-indicator');
 
     // --- 2. INITIAL SESSION CHECK ---
     // When the page loads, ask the server if we are already logged in
@@ -57,6 +58,8 @@
 
       currentUserSpan.textContent = '';
     }
+    
+   
 
     // --- 4. AUTHENTICATION LOGIC ---
 
@@ -112,6 +115,30 @@
       const cell = document.createElement('div');
       cell.className = 'cell';
       cell.dataset.index = i;
+      // Add the event listener here!
+      cell.addEventListener('click', handleCellClick); 
       board.appendChild(cell);
+    }
+    let currentPlayer = 'X';
+    let boardState = ['', '', '', '', '', '', '', '', ''];
+    let gameActive = true;
+    function handleCellClick(event) {
+      const clickedCell = event.target;
+      const cellIndex = parseInt(clickedCell.dataset.index);
+
+      // Prevent action if the cell is already clicked or game is paused/over
+      if (boardState[cellIndex] !== '' || !gameActive) {
+        return;
+      }
+
+      // 1. Update internal state
+      boardState[cellIndex] = currentPlayer;
+
+      // 2. Update the UI
+      clickedCell.textContent = currentPlayer;
+
+      // 3. Switch turns
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      turnIndicator.textContent = `Player ${currentPlayer}'s turn`;
     }
   });
