@@ -17,21 +17,7 @@
 
   <h1>My Build Process</h1>
 
-  <section id="cp02">
-    <h2>CP02-accounts</h2>
-    <p><strong>The tag:</strong> <code>CP02-accounts</code></p>
-    <p><strong>GitHub Link:</strong> <a href="https://github.com/KaydenKamberi/tictactoes/commit/4db8478ee5e2a79dc6114950d5f020966bdef25d">View Code for CP02</a></p>
-
-    <p><strong>What I built:</strong> I implemented a full user authentication system. This includes backend Express routes for registration, login, and logout, and a frontend that communicates with these routes using the Fetch API. User data is persisted in a local JSON file.</p>
-
-    <p><strong>What was hard:</strong> The most difficult part was managing the file structure. I accidentally created duplicate folders and files, which made the server and .gitignore act unpredictably until I flattened the tree back to the root.</p>
-
-    <p><strong>What I'd do differently:</strong> I would stick strictly to the required file structure from the very beginning to avoid having to move files and fix broken paths later.</p>
-
-    <p><strong>AI usage note:</strong> AI helped me write the session logic and fetch calls, but I had to manually troubleshoot why my 'View Checkpoints' button wasn't disappearing because the ID wasn't defined correctly in my script.</p>
-
-    <p><strong>A/B testing note:</strong> I tried hiding only the 3x3 board div, but switched to hiding the entire game section so the "Game" header wouldn't stay visible to logged-out users.</p>
-  </section>
+ 
 
   <section id="cp01">
     <h2>CP01-world</h2>
@@ -49,5 +35,38 @@
     <p><strong>A/B testing note:</strong> I compared using a simple 'Hello World' text response versus sending a full HTML file; I chose the HTML file because it felt like a more realistic starting point for a web app.</p>
   </section>
 
-</body>
-</html>
+
+  <section id="cp02">
+    <h2>CP02-accounts</h2>
+    <p><strong>The tag:</strong> <code>CP02-accounts</code></p>
+    <p><strong>GitHub Link:</strong> <a href="https://github.com/KaydenKamberi/tictactoes/commit/4db8478ee5e2a79dc6114950d5f020966bdef25d">View Code for CP02</a></p>
+
+    <p><strong>What I built:</strong> I implemented a full user authentication system. This includes backend Express routes for registration, login, and logout, and a frontend that communicates with these routes using the Fetch API. User data is persisted in a local JSON file.</p>
+
+    <p><strong>What was hard:</strong> The most difficult part was managing the file structure. I accidentally created duplicate folders and files, which made the server and .gitignore act unpredictably until I flattened the tree back to the root.</p>
+
+    <p><strong>What I'd do differently:</strong> I would stick strictly to the required file structure from the very beginning to avoid having to move files and fix broken paths later.</p>
+
+    <p><strong>AI usage note:</strong> AI helped me write the session logic and fetch calls, but I had to manually troubleshoot why my 'View Checkpoints' button wasn't disappearing because the ID wasn't defined correctly in my script.</p>
+
+    <p><strong>A/B testing note:</strong> I tried hiding only the 3x3 board div, but switched to hiding the entire game section so the "Game" header wouldn't stay visible to logged-out users.</p>
+  </section>
+
+  <section id="cp03">
+  <h2>CP03-game</h2>
+      <p><strong>The tag:</strong> <code>CP03-game</code></p>
+      <p><strong>GitHub Link:</strong> <a href="https://github.com/KaydenKamberi/tictactoes/commit/06e66c7a6b00fc38d394a415b3910d6030a5807f">View code for CP03-game</a></p>
+
+      <p><strong>What I built:</strong> I built the interactive game board UI. I used a JavaScript loop to dynamically generate a 3x3 grid of cells and attach click listeners to each one. The app now tracks an internal array of the board state, prevents players from overwriting existing moves, and updates a turn indicator to swap between Player X and Player O.</p>
+
+      <p><strong>What was hard:</strong> Figuring out how to connect a physical click on the screen to a specific slot in my JavaScript array was tricky. I ended up using HTML data attributes (dataset.index) to pass the exact cell number to the click handler.</p>
+
+      <p><strong>What I'd do differently:</strong> Right now, the X and O are just standard text. In the future, I'd like to add specific CSS classes to the cells when they are clicked so I can give X and O different colors to make the board pop more.</p>
+
+      <p><strong>AI usage note:</strong> I used AI to help structure the handleCellClick function and the logic for swapping players, but I had to manually integrate it into my existing DOMContentLoaded setup so it wouldn't break my login hiding/showing logic.</p>
+
+      <p><strong>A/B testing note:</strong> I debated hardcoding the 9 individual div cells directly into the HTML file, but I chose to generate them dynamically in main.js instead. This kept my HTML cleaner and allowed me to attach the event listeners inside the exact same loop that created them.</p>
+    </section>
+  </body>
+  </html>
+    

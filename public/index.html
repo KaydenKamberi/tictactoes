@@ -33,9 +33,13 @@
 
       <section id="game-section">
         <h2>Game</h2>
+        <div id="scoreboard" style="margin-bottom: 1rem; font-weight: bold; color: #cbd5e1;">
+          Player X: <span id="score-x">0</span> &nbsp;|&nbsp; Player O: <span id="score-o">0</span>
+        </div>
         <h3 id="turn-indicator">Player X's turn</h3>
         <div id="game-board" class="board"></div>
       </section>
+      <button id="play-again-btn" style="display: none; margin-top: 1rem;">Play Again</button>
     </main>
 
     <script src="/main.js"></script>

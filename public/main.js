@@ -22,6 +22,9 @@
     const logoutBtn = document.getElementById('logout-btn');
     const checkpointsLink = document.getElementById('checkpoints-link'); // Add this line
     const turnIndicator = document.getElementById('turn-indicator');
+    const scoreXSpan = document.getElementById('score-x');
+    const scoreOSpan = document.getElementById('score-o');
+    const playAgainBtn = document.getElementById('play-again-btn');
 
     // --- 2. INITIAL SESSION CHECK ---
     // When the page loads, ask the server if we are already logged in
@@ -122,23 +125,108 @@
     let currentPlayer = 'X';
     let boardState = ['', '', '', '', '', '', '', '', ''];
     let gameActive = true;
+    let scoreX = 0;
+    let scoreO = 0;
+    const winningConditions = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+      [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+      [0, 4, 8], [2, 4, 6]             // Diagonals
+    ];
     function handleCellClick(event) {
       const clickedCell = event.target;
       const cellIndex = parseInt(clickedCell.dataset.index);
 
-      // Prevent action if the cell is already clicked or game is paused/over
       if (boardState[cellIndex] !== '' || !gameActive) {
         return;
       }
 
-      // 1. Update internal state
+      // 1. Update internal state and UI
       boardState[cellIndex] = currentPlayer;
-
-      // 2. Update the UI
       clickedCell.textContent = currentPlayer;
 
-      // 3. Switch turns
+      // 2. CHECK FOR WIN OR DRAW HERE
+      checkWinOrDraw();
+
+      // 3. If the game ended, stop running this function
+      if (!gameActive) {
+        return; 
+      }
+
+      // 4. Otherwise, switch turns
       currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
       turnIndicator.textContent = `Player ${currentPlayer}'s turn`;
     }
+    // --- 7. WIN/DRAW DETECTION ---
+    function checkWinOrDraw() {
+      let roundWon = false;
+
+      // Loop through all 8 winning combinations
+      for (let i = 0; i < winningConditions.length; i++) {
+        const winCondition = winningConditions[i];
+        const a = boardState[winCondition[0]];
+        const b = boardState[winCondition[1]];
+        const c = boardState[winCondition[2]];
+
+        // If any of the three cells in the line are empty, no one has won this line yet
+        if (a === '' || b === '' || c === '') {
+          continue;
+        }
+
+        // If all three cells match, we have a winner!
+        if (a === b && b === c) {
+          roundWon = true;
+          break;
+        }
+      }
+
+      if (roundWon) {
+        turnIndicator.textContent = `Player ${currentPlayer} Wins!`;
+        gameActive = false; 
+
+        // NEW: Update the score
+        if (currentPlayer === 'X') {
+          scoreX++;
+          scoreXSpan.textContent = scoreX;
+        } else {
+          scoreO++;
+          scoreOSpan.textContent = scoreO;
+        }
+
+        // NEW: Show the Play Again button
+        playAgainBtn.style.display = 'inline-block';
+        return;
+      }
+
+      // Check for a draw
+      const roundDraw = !boardState.includes('');
+      if (roundDraw) {
+        turnIndicator.textContent = "It's a Draw!";
+        gameActive = false;
+
+        // NEW: Show the Play Again button
+        playAgainBtn.style.display = 'inline-block';
+        return;
+      }
+
+      
+    }
+    function resetBoard() {
+      // Reset state variables
+      boardState = ['', '', '', '', '', '', '', '', ''];
+      gameActive = true;
+      currentPlayer = 'X'; // X always starts the new round
+
+      // Reset UI elements
+      turnIndicator.textContent = `Player X's turn`;
+      playAgainBtn.style.display = 'none';
+
+      // Clear all the visual X's and O's from the grid
+      const cells = document.querySelectorAll('.cell');
+      cells.forEach(cell => {
+        cell.textContent = '';
+      });
+    }
+
+    // Attach the click listener to the button
+    playAgainBtn.addEventListener('click', resetBoard);
   });
