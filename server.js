@@ -10,14 +10,26 @@ const PORT = process.env.PORT || 5173;
 
 const DATA_DIR = path.join(__dirname, 'data');
 
+// Ensure the data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
 function readJson(name, fallback = []) {
   const file = path.join(DATA_DIR, name);
   try {
-    if (!fs.existsSync(file)) return fallback;
+    if (!fs.existsSync(file)) {
+      fs.writeFileSync(file, JSON.stringify(fallback, null, 2));
+      return fallback;
+    }
     const raw = fs.readFileSync(file, 'utf8').trim();
-    if (!raw) return fallback;
+    if (!raw) {
+      fs.writeFileSync(file, JSON.stringify(fallback, null, 2));
+      return fallback;
+    }
     return JSON.parse(raw);
   } catch (err) {
+    console.error(`Error reading ${name}:`, err);
     return fallback;
   }
 }
@@ -26,7 +38,13 @@ function writeJson(name, data) {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
   }
-  fs.writeFileSync(path.join(DATA_DIR, name), JSON.stringify(data, null, 2));
+  const filePath = path.join(DATA_DIR, name);
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    console.log(`Successfully wrote to ${filePath}`);
+  } catch (err) {
+    console.error(`Error writing to ${filePath}:`, err);
+  }
 }
 
 app.use(express.json());
@@ -54,11 +72,12 @@ app.get('/games', (req, res) => {
 
 // CP05: Endpoint to save a single game to history
 app.post('/save-game', (req, res) => {
-  const newGame = req.body; // Expect a single game object
+  console.log('Received /save-game request with body:', req.body);
+  const newGame = req.body;
   const games = readJson('games.json', []);
-  games.push(newGame); // Append the new game to the existing array
+  games.push(newGame);
   writeJson('games.json', games);
-  res.sendStatus(200);
+  res.status(200).json({ success: true, games });
 });
 
 app.post('/register', (req, res) => {
@@ -72,7 +91,6 @@ app.post('/register', (req, res) => {
     return res.status(409).json({ error: 'That username is already taken' });
   }
 
-  // Plaintext storage is intentional per the project brief (learning only).
   users.push({ username, password });
   writeJson('users.json', users);
 
