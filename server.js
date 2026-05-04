@@ -46,6 +46,19 @@ app.get('/me', (req, res) => {
   res.json({ user: req.session.user || null });
 });
 
+// CP05: Endpoint to fetch game history
+app.get('/games', (req, res) => {
+  const games = readJson('games.json', []);
+  res.json(games);
+});
+
+// CP05: Endpoint to save game history
+app.post('/save-game', (req, res) => {
+  const games = req.body;
+  writeJson('games.json', games);
+  res.sendStatus(200);
+});
+
 app.post('/register', (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) {
