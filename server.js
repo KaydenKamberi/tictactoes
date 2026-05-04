@@ -52,9 +52,11 @@ app.get('/games', (req, res) => {
   res.json(games);
 });
 
-// CP05: Endpoint to save game history
+// CP05: Endpoint to save a single game to history
 app.post('/save-game', (req, res) => {
-  const games = req.body;
+  const newGame = req.body; // Expect a single game object
+  const games = readJson('games.json', []);
+  games.push(newGame); // Append the new game to the existing array
   writeJson('games.json', games);
   res.sendStatus(200);
 });

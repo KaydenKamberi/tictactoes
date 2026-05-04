@@ -26,19 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const scoreOSpan = document.getElementById('score-o');
   const playAgainBtn = document.getElementById('play-again-btn');
 
-  // --- CP05: Game History ---
-  let games = []; // Global array to store game history
-
-  // Load game history on page load
-  function loadGameHistory() {
-    fetch('/games')
-      .then(res => res.json())
-      .then(data => {
-        games = data;
-      })
-      .catch(err => console.error('Failed to load game history:', err));
-  }
-
+  // --- CP05: Save Game Data ---
   // Save game result to history
   function saveGameToHistory(winner, moves) {
     const gameData = {
@@ -47,13 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
       winner: winner || null, // 'X', 'O', or null for draw
       date: new Date().toISOString()
     };
-    games.push(gameData);
 
-    // Send to backend to save to data/games.json
+    // Send only the new game data to the backend
     fetch('/save-game', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(games)
+      body: JSON.stringify(gameData)
     })
     .catch(err => console.error('Failed to save game:', err));
   }
@@ -266,7 +253,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Attach the click listener to the button
   playAgainBtn.addEventListener('click', resetBoard);
-
-  // CP05: Load game history on page load
-  loadGameHistory();
 });
