@@ -67,6 +67,21 @@
 
       <p><strong>A/B testing note:</strong> I debated hardcoding the 9 individual div cells directly into the HTML file, but I chose to generate them dynamically in main.js instead. This kept my HTML cleaner and allowed me to attach the event listeners inside the exact same loop that created them.</p>
     </section>
+  <section id="cp04">
+    <h2>CP04-pvp</h2>
+    <p><strong>The tag:</strong> <code>CP04-pvp</code></p>
+    <p><strong>GitHub Link:</strong> <a href="https://github.com/KaydenKamberi/tictactoes/commit/00a848610ee16d2861a93091a688c35d39ae281d">Add your CP04 commit link here</a></p>
+
+    <p><strong>What I built:</strong> I implemented the core rules of Tic Tac Toe. The app now checks for a win or a draw after every single move using a predefined array of the 8 possible winning combinations. I also added a scoreboard to track wins for Player X and Player O, along with a "Play Again" button that resets the board state without reloading the page.</p>
+
+    <p><strong>What was hard:</strong> Figuring out the exact timing for the win detection was tricky. I initially realized that if I checked for a win *after* switching the `currentPlayer` variable, the game would announce that the wrong person won. I had to carefully order my code so the state updates, the win is checked, and *then* the turn swaps.</p>
+
+    <p><strong>What I'd do differently:</strong> Right now, the game just stops when someone wins and shows text. Next time, I'd like to add a visual highlight (like changing the background color of the three winning cells) so it's instantly obvious where the winning line is.</p>
+
+    <p><strong>AI usage note:</strong> I used AI to help write the `checkWinOrDraw` loop and map out the 2D array of winning index combinations. However, I made sure to customize how it affected my UI, specifically integrating the score counters and the hidden reset button.</p>
+
+    <p><strong>A/B testing note:</strong> For the "Play Again" feature, I debated whether to just use `window.location.reload()` to refresh the page entirely. I chose to write a custom `resetBoard()` function instead, because reloading the page would have wiped out the `scoreX` and `scoreO` variables we were tracking in memory.</p>
+  </section>
   </body>
   </html>
     
