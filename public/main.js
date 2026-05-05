@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Game elements
   const gameSection = document.getElementById('game-section');
   const board = document.getElementById('game-board');
+  const gameModeSelector = document.getElementById('game-mode');
+  const playerOLabel = document.getElementById('player-o-label');
 
   // Input fields and buttons
   const regUsernameInput = document.getElementById('reg-username');
@@ -29,13 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- CP05: Save Game Data ---
   // Save game result to history
   function saveGameToHistory(winner) {
-    // Determine playerO based on game mode
-    // For now, since AI is not implemented, default to "Player 2"
-    const playerO = "Player 2"; // Replace this logic later for AI
+    const gameMode = gameModeSelector.value;
+    const playerO = gameMode === 'pvai' ? 'AI' : 'Player 2';
 
     const gameData = {
       playerX: currentUserSpan.textContent || 'Player X',
-      playerO: playerO, // Use the dynamic value
+      playerO: playerO,
       winner: winner || null, // 'X', 'O', or null for draw
       date: new Date().toISOString()
     };
@@ -61,6 +62,47 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Failed to save game:', err);
     });
   }
+
+  // --- Groq API Integration ---
+  async function getAIMove(boardState) {
+    const apiKey = process.env.GROQ_API_KEY || 'YOUR_GROQ_API_KEY'; // Replace with your actual key
+    const apiUrl = 'https://api.groq.com/v1/chat/completions';
+
+    const prompt = `
+      You are an AI playing Tic Tac Toe as 'O'. Given the current board state: [${boardState.map(cell => cell || ' ').join(', ')}],
+      return the best move index (0-8) for 'O' to win or force a draw. Respond with ONLY the index (e.g., 4).
+    `;
+
+    const requestBody = {
+      model: 'llama3-8b-8192',
+      messages: [
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.1,
+      max_tokens: 1
+    };
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      const data = await response.json();
+      const moveIndex = parseInt(data.choices[0].message.content.trim());
+      return moveIndex;
+    } catch (error) {
+      console.error('Error calling Groq API:', error);
+      // Fallback: Random move if API fails
+      const emptyIndices = boardState.map((cell, index) => cell === '' ? index : null).filter(val => val !== null);
+      return emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+    }
+  }
+
   // --- 2. INITIAL SESSION CHECK ---
   // When the page loads, ask the server if we are already logged in
   fetch('/me')
@@ -81,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gameSection.style.display = 'block';
     currentUserSpan.textContent = username;
     checkpointsLink.style.display = 'none';
+    updatePlayerOLabel();
   }
 
   function showLoggedOut() {
@@ -89,6 +132,11 @@ document.addEventListener('DOMContentLoaded', () => {
     gameSection.style.display = 'none';
     currentUserSpan.textContent = '';
     checkpointsLink.style.display = 'inline-block';
+  }
+
+  function updatePlayerOLabel() {
+    const gameMode = gameModeSelector.value;
+    playerOLabel.textContent = gameMode === 'pvai' ? 'AI' : 'Player O';
   }
 
   // --- 4. AUTHENTICATION LOGIC ---
@@ -156,28 +204,52 @@ document.addEventListener('DOMContentLoaded', () => {
     [0, 4, 8], [2, 4, 6]             // Diagonals
   ];
 
-  function handleCellClick(event) {
+  // --- 6. GAME MODE SELECTOR ---
+  gameModeSelector.addEventListener('change', updatePlayerOLabel);
+
+  // --- 7. HANDLE CELL CLICK ---
+  async function handleCellClick(event) {
     const clickedCell = event.target;
     const cellIndex = parseInt(clickedCell.dataset.index);
+    const gameMode = gameModeSelector.value;
 
     if (boardState[cellIndex] !== '' || !gameActive) {
       return;
     }
 
+    // Human move (X or O in PvP, X in PvAI)
     boardState[cellIndex] = currentPlayer;
     clickedCell.textContent = currentPlayer;
 
     checkWinOrDraw();
-
     if (!gameActive) {
       return;
     }
 
+    // Switch player
     currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-    turnIndicator.textContent = `Player ${currentPlayer}'s turn`;
+
+    if (gameMode === 'pvai' && currentPlayer === 'O') {
+      // AI's turn
+      turnIndicator.textContent = "AI is thinking...";
+      const aiMoveIndex = await getAIMove(boardState);
+
+      if (aiMoveIndex >= 0 && aiMoveIndex <= 8 && boardState[aiMoveIndex] === '') {
+        boardState[aiMoveIndex] = 'O';
+        document.querySelector(`[data-index="${aiMoveIndex}"]`).textContent = 'O';
+        checkWinOrDraw();
+      }
+      currentPlayer = 'X';
+      if (gameActive) {
+        turnIndicator.textContent = "Player X's turn";
+      }
+    } else {
+      // PvP mode: Update turn indicator
+      turnIndicator.textContent = `Player ${currentPlayer}'s turn`;
+    }
   }
 
-  // --- 7. WIN/DRAW DETECTION ---
+  // --- 8. WIN/DRAW DETECTION ---
   function checkWinOrDraw() {
     let roundWon = false;
 
@@ -198,7 +270,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (roundWon) {
-      turnIndicator.textContent = `Player ${currentPlayer} Wins!`;
+      const gameMode = gameModeSelector.value;
+      const winnerLabel = gameMode === 'pvai' && currentPlayer === 'O' ? 'AI' : `Player ${currentPlayer}`;
+      turnIndicator.textContent = `${winnerLabel} Wins!`;
       gameActive = false;
 
       if (currentPlayer === 'X') {
