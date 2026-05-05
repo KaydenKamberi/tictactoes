@@ -63,41 +63,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Groq API Integration ---
+  // --- Groq API Integration via Backend ---
   async function getAIMove(boardState) {
-    const apiKey = process.env.GROQ_API_KEY || 'YOUR_GROQ_API_KEY'; // Replace with your actual key
-    const apiUrl = 'https://api.groq.com/v1/chat/completions';
-
-    const prompt = `
-      You are an AI playing Tic Tac Toe as 'O'. Given the current board state: [${boardState.map(cell => cell || ' ').join(', ')}],
-      return the best move index (0-8) for 'O' to win or force a draw. Respond with ONLY the index (e.g., 4).
-    `;
-
-    const requestBody = {
-      model: 'llama3-8b-8192',
-      messages: [
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.1,
-      max_tokens: 1
-    };
-
     try {
-      const response = await fetch(apiUrl, {
+      const response = await fetch('/get-ai-move', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ boardState })
       });
 
       const data = await response.json();
-      const moveIndex = parseInt(data.choices[0].message.content.trim());
-      return moveIndex;
+      return data.moveIndex;
     } catch (error) {
-      console.error('Error calling Groq API:', error);
-      // Fallback: Random move if API fails
+      console.error('Error calling backend for AI move:', error);
+      // Fallback: Random move
       const emptyIndices = boardState.map((cell, index) => cell === '' ? index : null).filter(val => val !== null);
       return emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
     }
