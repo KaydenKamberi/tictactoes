@@ -82,6 +82,21 @@
 
     <p><strong>A/B testing note:</strong> For the "Play Again" feature, I debated whether to just use `window.location.reload()` to refresh the page entirely. I chose to write a custom `resetBoard()` function instead, because reloading the page would have wiped out the `scoreX` and `scoreO` variables we were tracking in memory.</p>
   </section>
+  <section id="cp05">
+    <h2>CP05-history</h2>
+    <p><strong>The tag:</strong> <code>CP05-history</code></p>
+    <p><strong>GitHub Link:</strong> <a href="https://github.com/KaydenKamberi/tictactoes/commit/YOUR_COMMIT_HASH_HERE">View Code for CP05</a></p>
+
+    <p><strong>What I built:</strong> I implemented game history persistence by saving each game's result (winner, players, and timestamp) to a <code>games.json</code> file. The backend now includes a <code>/save-game</code> endpoint to store game data and a <code>/games</code> endpoint to retrieve the history. The frontend sends game results to the backend whenever a game ends.</p>
+
+    <p><strong>What was hard:</strong> The most challenging part was debugging why the game data wasn't saving to <code>games.json</code>. I initially thought the issue was in the server-side logic, but it turned out to be a client-side problem where the <code>playerX</code> value was empty due to session management. I fixed it by ensuring the user was properly logged in and the session was maintained.</p>
+
+    <p><strong>What I'd do differently:</strong> I would have added more detailed error logging on both the client and server sides earlier. This would have helped me pinpoint the issue faster instead of assuming it was a backend problem.</p>
+
+    <p><strong>AI usage note:</strong> I used AI to help review my code and identify potential issues, but ultimately, I diagnosed and fixed the problem myself by testing the endpoints manually and checking the browser's Network tab.</p>
+
+    <p><strong>A/B testing note:</strong> I considered storing the game history in memory (e.g., a JavaScript array) but chose to use a JSON file for persistence. This ensures the data remains available even after the server restarts.</p>
+  </section>
   </body>
   </html>
     

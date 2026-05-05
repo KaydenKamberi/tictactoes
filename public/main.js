@@ -29,16 +29,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- CP05: Save Game Data ---
   // Save game result to history
   function saveGameToHistory(winner) {
+    // Determine playerO based on game mode
+    // For now, since AI is not implemented, default to "Player 2"
+    const playerO = "Player 2"; // Replace this logic later for AI
+
     const gameData = {
       playerX: currentUserSpan.textContent || 'Player X',
-      playerO: 'CPU',
+      playerO: playerO, // Use the dynamic value
       winner: winner || null, // 'X', 'O', or null for draw
       date: new Date().toISOString()
     };
 
     console.log('Saving game data:', gameData);
 
-    // Send only the new game data to the backend
+    // Send the game data to the backend
     fetch('/save-game', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -57,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Failed to save game:', err);
     });
   }
-
   // --- 2. INITIAL SESSION CHECK ---
   // When the page loads, ask the server if we are already logged in
   fetch('/me')
