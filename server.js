@@ -81,31 +81,93 @@ app.post('/save-game', (req, res) => {
   res.status(200).json({ success: true, games });
 });
 
-// CP06: Endpoint to get AI move from Groq API
+// CP07: Updated endpoint to get AI move with difficulty and personality
 app.post('/get-ai-move', async (req, res) => {
-  const { boardState } = req.body;
+  const { boardState, difficulty, personality } = req.body;
   const apiUrl = 'https://api.groq.com/v1/chat/completions';
 
-  if (!GROQ_API_KEY) {
-    console.error('Groq API key is not set in environment variables.');
-    // Fallback: Random move
+  // Fallback function for invalid moves or JSON errors
+  function getFallbackMove() {
     const emptyIndices = boardState.map((cell, index) => cell === '' ? index : null).filter(val => val !== null);
     const randomMove = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
-    return res.json({ moveIndex: randomMove });
+    
+    // Generate fallback comment based on personality
+    let fallbackComment = '';
+    switch (personality) {
+      case 'Passive-Aggressive Robot':
+        fallbackComment = "Oh great, another brilliant move by me. Not like you could've seen that coming.";
+        break;
+      case 'Kind Tic-Tac-Toe Coach':
+        fallbackComment = "Hmm, let's try this spot. Keep practicing, you're doing great!";
+        break;
+      case 'Angry Pirate':
+        fallbackComment = "Arrr, me brain broke, but I claim this square!";
+        break;
+      default:
+        fallbackComment = "AI is thinking...";
+    }
+    
+    return { move: randomMove, comment: fallbackComment };
   }
 
-  const prompt = `
-    You are an AI playing Tic Tac Toe as 'O'. Given the current board state: [${boardState.map(cell => cell || ' ').join(', ')}],
-    return the best move index (0-8) for 'O' to win or force a draw. Respond with ONLY the index (e.g., 4).
-  `;
+  // If Groq API key is not set, use fallback
+  if (!GROQ_API_KEY) {
+    console.error('Groq API key is not set in environment variables.');
+    const fallback = getFallbackMove();
+    return res.json({ moveIndex: fallback.move, comment: fallback.comment });
+  }
+
+  // Construct dynamic prompt based on difficulty and personality
+  let systemPrompt = '';
+  
+  // Difficulty-based instructions
+  switch (difficulty) {
+    case 'Easy':
+      systemPrompt += 'You are playing Tic Tac Toe as "O" on EASY difficulty. ';
+      systemPrompt += 'Make obvious mistakes or pick random open spots. ';
+      break;
+    case 'Medium':
+      systemPrompt += 'You are playing Tic Tac Toe as "O" on MEDIUM difficulty. ';
+      systemPrompt += 'Play decently but miss complex traps. ';
+      break;
+    case 'Hard':
+      systemPrompt += 'You are playing Tic Tac Toe as "O" on HARD difficulty. ';
+      systemPrompt += 'Play perfectly like the Minimax algorithm. ';
+      break;
+    default:
+      systemPrompt += 'You are playing Tic Tac Toe as "O". ';
+  }
+
+  // Personality-based instructions
+  switch (personality) {
+    case 'Passive-Aggressive Robot':
+      systemPrompt += 'Respond with a snarky, backhanded compliment in a robotic tone. ';
+      break;
+    case 'Kind Tic-Tac-Toe Coach':
+      systemPrompt += 'Respond with an encouraging, analytical, and supportive comment. ';
+      break;
+    case 'Angry Pirate':
+      systemPrompt += 'Respond with a salty, aggressive comment using pirate slang. ';
+      break;
+    default:
+      systemPrompt += 'Respond with a neutral comment. ';
+  }
+
+  // Final instructions for output format
+  systemPrompt += `Given the current board state: [${boardState.map(cell => cell || ' ').join(', ')}], `;
+  systemPrompt += 'return a JSON object with the move index (0-8) and a comment. ';
+  systemPrompt += 'The JSON must be in this exact format: {"move": <integer 0-8>, "comment": "<string>"}. ';
+  systemPrompt += 'Do NOT include any other text or explanations.';
 
   const requestBody = {
     model: 'llama3-8b-8192',
     messages: [
-      { role: 'user', content: prompt }
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: 'Make your move.' }
     ],
     temperature: 0.1,
-    max_tokens: 1
+    max_tokens: 100,
+    response_format: { type: 'json_object' } // Use Groq's JSON mode
   };
 
   try {
@@ -118,15 +180,49 @@ app.post('/get-ai-move', async (req, res) => {
       body: JSON.stringify(requestBody)
     });
 
+    if (!response.ok) {
+      throw new Error(`Groq API error: ${response.statusText}`);
+    }
+
     const data = await response.json();
-    const moveIndex = parseInt(data.choices[0].message.content.trim());
-    res.json({ moveIndex });
+    
+    // Parse the JSON response from the LLM
+    let moveData;
+    try {
+      // The response should already be JSON due to response_format
+      const responseContent = data.choices[0].message.content.trim();
+      moveData = JSON.parse(responseContent);
+    } catch (parseError) {
+      console.error('Failed to parse LLM response as JSON:', parseError);
+      throw parseError;
+    }
+
+    // Validate the move
+    if (
+      typeof moveData.move !== 'number' ||
+      moveData.move < 0 ||
+      moveData.move > 8 ||
+      boardState[moveData.move] !== ''
+    ) {
+      console.error('Invalid move from LLM:', moveData.move);
+      throw new Error('Invalid move');
+    }
+
+    // Return the move and comment
+    res.json({ 
+      moveIndex: moveData.move, 
+      comment: moveData.comment || "AI made a move." 
+    });
+
   } catch (error) {
-    console.error('Error calling Groq API:', error);
-    // Fallback: Random move
-    const emptyIndices = boardState.map((cell, index) => cell === '' ? index : null).filter(val => val !== null);
-    const randomMove = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
-    res.json({ moveIndex: randomMove });
+    console.error('Error calling Groq API or processing response:', error);
+    
+    // Use fallback mechanism
+    const fallback = getFallbackMove();
+    res.json({ 
+      moveIndex: fallback.move, 
+      comment: fallback.comment 
+    });
   }
 });
 
