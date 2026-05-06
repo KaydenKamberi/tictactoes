@@ -4,5 +4,23 @@
     "playerO": "Player 2",
     "winner": "X",
     "date": "2026-05-05T17:37:07.293Z"
+  },
+  {
+    "playerX": "Kayden",
+    "playerO": "AI",
+    "winner": "X",
+    "date": "2026-05-06T17:29:27.974Z"
+  },
+  {
+    "playerX": "Kayden",
+    "playerO": "AI",
+    "winner": "X",
+    "date": "2026-05-06T17:29:33.820Z"
+  },
+  {
+    "playerX": "Kayden",
+    "playerO": "AI",
+    "winner": "O",
+    "date": "2026-05-06T17:29:40.302Z"
   }
 ]

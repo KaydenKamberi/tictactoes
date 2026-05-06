@@ -97,6 +97,21 @@
 
     <p><strong>A/B testing note:</strong> I considered storing the game history in memory (e.g., a JavaScript array) but chose to use a JSON file for persistence. This ensures the data remains available even after the server restarts.</p>
   </section>
+  <section id="cp06">
+    <h2>CP06-ai</h2>
+    <p><strong>The tag:</strong> <code>CP06-ai</code></p>
+    <p><strong>GitHub Link:</strong> <a href="https://github.com/KaydenKamberi/tictactoes/commit/b68ef1e5d0703b28c99240db5a3a6d2cadff317e">View Code for CP06</a></p>
+
+    <p><strong>What I built:</strong> I added a PvAI (Player vs. AI) mode to the game, allowing players to choose between PvP and PvAI using a dropdown selector. The AI uses the Groq API to generate its moves dynamically. I implemented a backend proxy endpoint (<code>/get-ai-move</code>) to securely call the Groq API from the server, avoiding exposure of the API key in the frontend. The AI responds with optimal moves, and the game updates the UI to reflect the AI's turn.</p>
+
+    <p><strong>What was hard:</strong> The most challenging part was ensuring the Groq API key was securely handled. Initially, I tried calling the API directly from the frontend, but realized that <code>process.env</code> doesn't work in browser JavaScript. I had to refactor the code to use a backend proxy, which required setting up a new endpoint and updating the frontend to call it.</p>
+
+    <p><strong>What I'd do differently:</strong> I would have planned the backend-frontend communication earlier to avoid the initial confusion about where to place the API key. Additionally, I would have added more detailed error handling for the Groq API calls to make debugging easier.</p>
+
+    <p><strong>AI usage note:</strong> I used AI to help structure the backend proxy endpoint and the frontend logic for handling AI moves. However, I had to manually ensure the API key was securely stored and accessed only on the server side.</p>
+
+    <p><strong>A/B testing note:</strong> I considered using a client-side AI library for simplicity, but chose the Groq API for its flexibility and power. This required a backend proxy, but it ensured the API key remained secure and the AI could be easily upgraded or replaced in the future.</p>
+  </section>
   </body>
   </html>
     
