@@ -48,7 +48,8 @@ h2 {
 }
 
 input,
-button {
+button,
+select {
   font: inherit;
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
@@ -58,6 +59,12 @@ button {
 input {
   background: #0f172a;
   color: #f8fafc;
+}
+
+select {
+  background: #0f172a;
+  color: #f8fafc;
+  cursor: pointer;
 }
 
 button {
@@ -79,6 +86,25 @@ button:hover {
 #game-section {
   display: none; /* Hide the whole section by default */
   margin-top: 1rem;
+}
+
+/* CP07: Style for AI settings dropdowns */
+#ai-settings {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dropdown-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dropdown-container label {
+  color: #cbd5e1;
+  font-weight: 500;
 }
 
 .board {
@@ -103,6 +129,7 @@ button:hover {
   cursor: pointer;
   border-radius: 4px;
 }
+
 .nav-button {
   display: inline-block;
   margin: 1rem 0 2rem;
