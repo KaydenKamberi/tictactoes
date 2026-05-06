@@ -11,6 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const board = document.getElementById('game-board');
   const gameModeSelector = document.getElementById('game-mode');
   const playerOLabel = document.getElementById('player-o-label');
+  
+  // CP07: AI Settings
+  const aiSettings = document.getElementById('ai-settings');
+  const difficultySelector = document.getElementById('difficulty');
+  const personalitySelector = document.getElementById('personality');
+  const aiComment = document.getElementById('ai-comment');
 
   // Input fields and buttons
   const regUsernameInput = document.getElementById('reg-username');
@@ -64,15 +70,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Groq API Integration via Backend ---
+  // CP07: Updated to include difficulty and personality
   async function getAIMove(boardState) {
+    const difficulty = difficultySelector.value;
+    const personality = personalitySelector.value;
+    
     try {
       const response = await fetch('/get-ai-move', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ boardState })
+        body: JSON.stringify({ 
+          boardState,
+          difficulty,
+          personality
+        })
       });
 
       const data = await response.json();
+      
+      // Display AI comment if available
+      if (data.comment) {
+        aiComment.textContent = data.comment;
+      }
+      
       return data.moveIndex;
     } catch (error) {
       console.error('Error calling backend for AI move:', error);
@@ -116,6 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function updatePlayerOLabel() {
     const gameMode = gameModeSelector.value;
     playerOLabel.textContent = gameMode === 'pvai' ? 'AI' : 'Player O';
+    
+    // CP07: Show AI settings only in PvAI mode
+    aiSettings.style.display = gameMode === 'pvai' ? 'flex' : 'none';
   }
 
   // --- 4. AUTHENTICATION LOGIC ---
@@ -199,6 +222,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Human move (X or O in PvP, X in PvAI)
     boardState[cellIndex] = currentPlayer;
     clickedCell.textContent = currentPlayer;
+
+    // Clear AI comment on new move
+    aiComment.textContent = '';
 
     checkWinOrDraw();
     if (!gameActive) {
@@ -284,6 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentPlayer = 'X';
     turnIndicator.textContent = `Player ${currentPlayer}'s turn`;
     playAgainBtn.style.display = 'none';
+    aiComment.textContent = '';
 
     const cells = document.querySelectorAll('.cell');
     cells.forEach(cell => {
