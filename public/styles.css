@@ -188,3 +188,28 @@ button:hover {
   margin: 1.5rem 0 0.75rem;
   color: #f8fafc;
 }
+
+/* CP09: Time Trial Mode Styles */
+#time-trial-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+#time-trial-toggle {
+  cursor: pointer;
+  accent-color: #38bdf8;
+}
+
+#timer-display {
+  font-size: 1.1rem;
+  color: #ef4444;
+  font-weight: 600;
+  display: none;
+}
+
+#timer-value {
+  font-family: monospace;
+}
