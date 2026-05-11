@@ -67,6 +67,15 @@
           </div>
         </div>
         
+        <!-- CP09: Time Trial Mode Toggle -->
+        <div id="time-trial-settings" style="margin-bottom: 1rem;">
+          <label for="time-trial-toggle">Time Trial Mode (5s per move):</label>
+          <input type="checkbox" id="time-trial-toggle" />
+          <div id="timer-display" style="margin-top: 0.5rem; font-weight: bold; color: #ef4444; display: none;">
+            Time left: <span id="timer-value">5</span>s
+          </div>
+        </div>
+        
         <h2>Game</h2>
         <div id="scoreboard" style="margin-bottom: 1rem; font-weight: bold; color: #cbd5e1;">
           Player X: <span id="score-x">0</span> &nbsp;|&nbsp; <span id="player-o-label">Player O</span>: <span id="score-o">0</span>
