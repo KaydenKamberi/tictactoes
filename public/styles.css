@@ -21,13 +21,14 @@ body {
 
 main {
   width: 100%;
-  max-width: 640px;
+  max-width: 1000px;
   text-align: center;
 }
 
 h1 {
   margin: 0 0 1.5rem;
   font-size: 2rem;
+  font-weight: 700;
 }
 
 h2 {
@@ -85,7 +86,8 @@ button:hover {
 }
 
 #user-info {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 #user-coins {
@@ -98,13 +100,43 @@ button:hover {
   margin-top: 1rem;
 }
 
-/* Board Settings Styles */
+/* Nav Buttons Container */
+.nav-buttons-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+/* Game Container */
+.game-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+/* Game Settings */
+#game-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  min-width: 250px;
+}
+
+#game-mode-selector,
+#board-settings,
+#ai-settings,
+#time-trial-settings {
+  width: 100%;
+}
+
 #board-settings {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 1rem;
-  margin-bottom: 1rem;
 }
 
 #board-settings label {
@@ -121,9 +153,8 @@ button:hover {
 /* CP07: Style for AI settings dropdowns */
 #ai-settings {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .dropdown-container {
@@ -162,7 +193,6 @@ button:hover {
 
 .nav-button {
   display: inline-block;
-  margin: 1rem 0 2rem;
   padding: 0.6rem 1.2rem;
   background-color: transparent;
   color: #38bdf8;
@@ -222,10 +252,8 @@ button:hover {
 /* CP09: Time Trial Mode Styles */
 #time-trial-settings {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
 }
 
 #time-trial-toggle {
@@ -238,6 +266,7 @@ button:hover {
   color: #ef4444;
   font-weight: 600;
   display: none;
+  margin-top: 0.5rem;
 }
 
 #timer-value {
@@ -302,4 +331,22 @@ button:hover {
 .shop-item-equipped {
   border: 2px solid #38bdf8;
   background: rgba(56, 189, 248, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .game-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  #game-settings {
+    align-items: center;
+    width: 100%;
+  }
+  
+  #ai-settings {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

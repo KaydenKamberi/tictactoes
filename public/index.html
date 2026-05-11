@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tic Tac Toe AI</title>
     <link rel="stylesheet" href="/styles.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <style>
       h1 {
-        font-family: 'Pacifico', cursive;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        font-weight: 700;
       }
     </style>
   </head>
@@ -31,68 +31,77 @@
           <button id="login-btn">Log in</button>
         </div>
       </section>
-      <a href="checkpoints.html" id="checkpoints-link" class="nav-button">View Project Checkpoints</a>
-      <a href="leaderboard.html" id="leaderboard-link" class="nav-button">View Leaderboard</a>
+      
+      <div class="nav-buttons-container">
+        <a href="checkpoints.html" id="checkpoints-link" class="nav-button">View Project Checkpoints</a>
+        <a href="leaderboard.html" id="leaderboard-link" class="nav-button">View Leaderboard</a>
+      </div>
+      
       <section id="user-info" style="display: none;">
         <p>Signed in as <span id="current-user"></span> | Coins: <span id="user-coins">0</span></p>
         <button id="logout-btn">Log out</button>
       </section>
 
-      <section id="game-section">
-        <div id="game-mode-selector" style="margin-bottom: 1rem;">
-          <label for="game-mode">Game Mode: </label>
-          <select id="game-mode">
-            <option value="pvp">Player vs. Player</option>
-            <option value="pvai">Player vs. AI</option>
-          </select>
-        </div>
-        
-        <!-- Board Color Selector -->
-        <div id="board-settings" style="margin-bottom: 1rem;">
-          <label for="board-color">Board Color: </label>
-          <select id="board-color">
-            <option value="#334155">Default</option>
-          </select>
-          <a href="shop.html" id="shop-link" class="nav-button" style="display: inline-block; margin-left: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.9rem;">Shop</a>
-        </div>
-        
-        <!-- CP07: Difficulty and Personality Dropdowns -->
-        <div id="ai-settings" style="margin-bottom: 1rem; display: none;">
-          <div class="dropdown-container">
-            <label for="difficulty">Difficulty: </label>
-            <select id="difficulty">
-              <option value="Easy">Easy</option>
-              <option value="Medium">Medium</option>
-              <option value="Hard">Hard</option>
+      <div class="game-container">
+        <section id="game-settings">
+          <div id="game-mode-selector" style="margin-bottom: 1rem;">
+            <label for="game-mode">Game Mode: </label>
+            <select id="game-mode">
+              <option value="pvp">Player vs. Player</option>
+              <option value="pvai">Player vs. AI</option>
             </select>
           </div>
-          <div class="dropdown-container">
-            <label for="personality">Personality: </label>
-            <select id="personality">
-              <option value="Passive-Aggressive Robot">Passive-Aggressive Robot</option>
-              <option value="Kind Tic-Tac-Toe Coach">Kind Tic-Tac-Toe Coach</option>
-              <option value="Angry Pirate">Angry Pirate</option>
+          
+          <!-- Board Color Selector -->
+          <div id="board-settings" style="margin-bottom: 1rem;">
+            <label for="board-color">Board Color: </label>
+            <select id="board-color">
+              <option value="#334155">Default</option>
             </select>
+            <a href="shop.html" id="shop-link" class="nav-button" style="display: inline-block; margin-left: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.9rem;">Shop</a>
           </div>
-        </div>
-        
-        <!-- CP09: Time Trial Mode Toggle -->
-        <div id="time-trial-settings" style="margin-bottom: 1rem;">
-          <label for="time-trial-toggle">Time Trial Mode (5s per move):</label>
-          <input type="checkbox" id="time-trial-toggle" />
-          <div id="timer-display" style="margin-top: 0.5rem; font-weight: bold; color: #ef4444; display: none;">
-            Time left: <span id="timer-value">5</span>s
+          
+          <!-- CP07: Difficulty and Personality Dropdowns -->
+          <div id="ai-settings" style="margin-bottom: 1rem; display: none;">
+            <div class="dropdown-container">
+              <label for="difficulty">Difficulty: </label>
+              <select id="difficulty">
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
+            <div class="dropdown-container">
+              <label for="personality">Personality: </label>
+              <select id="personality">
+                <option value="Passive-Aggressive Robot">Passive-Aggressive Robot</option>
+                <option value="Kind Tic-Tac-Toe Coach">Kind Tic-Tac-Toe Coach</option>
+                <option value="Angry Pirate">Angry Pirate</option>
+              </select>
+            </div>
           </div>
-        </div>
+          
+          <!-- CP09: Time Trial Mode Toggle -->
+          <div id="time-trial-settings" style="margin-bottom: 1rem;">
+            <label for="time-trial-toggle">Time Trial Mode (5s per move):</label>
+            <input type="checkbox" id="time-trial-toggle" />
+            <div id="timer-display" style="margin-top: 0.5rem; font-weight: bold; color: #ef4444; display: none;">
+              Time left: <span id="timer-value">5</span>s
+            </div>
+          </div>
+        </section>
         
-        <h2>Game</h2>
-        <div id="scoreboard" style="margin-bottom: 1rem; font-weight: bold; color: #cbd5e1;">
-          Player X: <span id="score-x">0</span> &nbsp;|&nbsp; <span id="player-o-label">Player O</span>: <span id="score-o">0</span>
-        </div>
-        <h3 id="turn-indicator">Player X's turn</h3>
-        <div id="ai-comment" style="margin: 0.5rem 0; font-style: italic; color: #94a3b8;"></div>
-        <div id="game-board" class="board"></div>
-      </section>
+        <section id="game-section">
+          <h2>Game</h2>
+          <div id="scoreboard" style="margin-bottom: 1rem; font-weight: bold; color: #cbd5e1;">
+            Player X: <span id="score-x">0</span> &nbsp;|&nbsp; <span id="player-o-label">Player O</span>: <span id="score-o">0</span>
+          </div>
+          <h3 id="turn-indicator">Player X's turn</h3>
+          <div id="ai-comment" style="margin: 0.5rem 0; font-style: italic; color: #94a3b8;"></div>
+          <div id="game-board" class="board"></div>
+        </section>
+      </div>
+      
       <button id="play-again-btn" style="display: none; margin-top: 1rem;">Play Again</button>
     </main>
 
