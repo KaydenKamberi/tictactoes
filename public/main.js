@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const logoutBtn = document.getElementById('logout-btn');
   const checkpointsLink = document.getElementById('checkpoints-link');
+  const leaderboardLink = document.getElementById('leaderboard-link');
   const turnIndicator = document.getElementById('turn-indicator');
   const scoreXSpan = document.getElementById('score-x');
   const scoreOSpan = document.getElementById('score-o');
@@ -46,6 +47,12 @@ document.addEventListener('DOMContentLoaded', () => {
       winner: winner || null, // 'X', 'O', or null for draw
       date: new Date().toISOString()
     };
+
+    // Include difficulty and personality for AI games
+    if (gameMode === 'pvai') {
+      gameData.difficulty = difficultySelector.value;
+      gameData.personality = personalitySelector.value;
+    }
 
     console.log('Saving game data:', gameData);
 
@@ -122,6 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gameSection.style.display = 'block';
     currentUserSpan.textContent = username;
     checkpointsLink.style.display = 'none';
+    leaderboardLink.style.display = 'inline-block';
     updatePlayerOLabel();
   }
 
@@ -131,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gameSection.style.display = 'none';
     currentUserSpan.textContent = '';
     checkpointsLink.style.display = 'inline-block';
+    leaderboardLink.style.display = 'inline-block';
   }
 
   function updatePlayerOLabel() {

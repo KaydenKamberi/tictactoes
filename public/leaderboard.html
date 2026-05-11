@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic Tac Toe Leaderboard</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+      h1 {
+        font-family: 'Pacifico', cursive;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Tic Tac Toe Leaderboard</h1>
+      <a href="/" class="nav-button">Back to Game</a>
+      
+      <section id="leaderboard-section">
+        <h2>Player Rankings</h2>
+        <div class="leaderboard-container">
+          <table class="leaderboard-table" id="player-leaderboard">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Player</th>
+                <th>Wins</th>
+                <th>Losses</th>
+                <th>Draws</th>
+                <th>Win Rate</th>
+              </tr>
+            </thead>
+            <tbody id="player-leaderboard-body">
+              <!-- Player data will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+
+        <h2>AI Win Rates by Difficulty and Personality</h2>
+        <div class="leaderboard-container">
+          <table class="leaderboard-table" id="ai-leaderboard">
+            <thead>
+              <tr>
+                <th>Difficulty</th>
+                <th>Personality</th>
+                <th>AI Wins</th>
+                <th>Total Games</th>
+                <th>Win Rate</th>
+              </tr>
+            </thead>
+            <tbody id="ai-leaderboard-body">
+              <!-- AI stats data will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/leaderboard.js"></script>
+  </body>
+</html>
