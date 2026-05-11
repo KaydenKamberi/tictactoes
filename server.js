@@ -237,6 +237,100 @@ app.get('/users', (req, res) => {
   res.json(users);
 });
 
+// Shop Endpoints
+app.get('/user-data', (req, res) => {
+  const { username } = req.query;
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+
+  const users = readJson('users.json', []);
+  const user = users.find(u => u.username === username);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  // Return user data with defaults if fields are missing
+  res.json({
+    coins: user.coins || 0,
+    ownedBoards: user.ownedBoards || ['default'],
+    selectedBoard: user.selectedBoard || '#334155'
+  });
+});
+
+app.post('/update-coins', (req, res) => {
+  const { username, coins } = req.body;
+  if (!username || coins === undefined) {
+    return res.status(400).json({ error: 'Username and coins are required' });
+  }
+
+  const users = readJson('users.json', []);
+  const userIndex = users.findIndex(u => u.username === username);
+  if (userIndex === -1) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  // Add coins to user's balance
+  users[userIndex].coins = (users[userIndex].coins || 0) + coins;
+  writeJson('users.json', users);
+  res.json({ coins: users[userIndex].coins });
+});
+
+app.post('/purchase-board', (req, res) => {
+  const { username, boardId, price } = req.body;
+  if (!username || !boardId || price === undefined) {
+    return res.status(400).json({ error: 'Username, boardId, and price are required' });
+  }
+
+  const users = readJson('users.json', []);
+  const userIndex = users.findIndex(u => u.username === username);
+  if (userIndex === -1) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  const user = users[userIndex];
+  if ((user.coins || 0) < price) {
+    return res.status(400).json({ error: 'Not enough coins' });
+  }
+
+  // Deduct coins and add board to ownedBoards
+  user.coins -= price;
+  if (!user.ownedBoards) {
+    user.ownedBoards = ['default'];
+  }
+  if (!user.ownedBoards.includes(boardId)) {
+    user.ownedBoards.push(boardId);
+  }
+  writeJson('users.json', users);
+  res.json({ 
+    success: true, 
+    coins: user.coins, 
+    ownedBoards: user.ownedBoards 
+  });
+});
+
+app.post('/equip-board', (req, res) => {
+  const { username, boardId, color } = req.body;
+  if (!username || !boardId || !color) {
+    return res.status(400).json({ error: 'Username, boardId, and color are required' });
+  }
+
+  const users = readJson('users.json', []);
+  const userIndex = users.findIndex(u => u.username === username);
+  if (userIndex === -1) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  const user = users[userIndex];
+  if (!user.ownedBoards || !user.ownedBoards.includes(boardId)) {
+    return res.status(400).json({ error: 'You do not own this board' });
+  }
+
+  user.selectedBoard = color;
+  writeJson('users.json', users);
+  res.json({ success: true, selectedBoard: color });
+});
+
 app.post('/register', (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) {
@@ -248,7 +342,14 @@ app.post('/register', (req, res) => {
     return res.status(409).json({ error: 'That username is already taken' });
   }
 
-  users.push({ username, password });
+  // Initialize new user with coins, ownedBoards, and selectedBoard
+  users.push({
+    username,
+    password,
+    coins: 0,
+    ownedBoards: ['default'],
+    selectedBoard: '#334155'
+  });
   writeJson('users.json', users);
 
   req.session.user = username;

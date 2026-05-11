@@ -34,7 +34,7 @@
       <a href="checkpoints.html" id="checkpoints-link" class="nav-button">View Project Checkpoints</a>
       <a href="leaderboard.html" id="leaderboard-link" class="nav-button">View Leaderboard</a>
       <section id="user-info" style="display: none;">
-        <p>Signed in as <span id="current-user"></span></p>
+        <p>Signed in as <span id="current-user"></span> | Coins: <span id="user-coins">0</span></p>
         <button id="logout-btn">Log out</button>
       </section>
 
@@ -45,6 +45,15 @@
             <option value="pvp">Player vs. Player</option>
             <option value="pvai">Player vs. AI</option>
           </select>
+        </div>
+        
+        <!-- Board Color Selector -->
+        <div id="board-settings" style="margin-bottom: 1rem;">
+          <label for="board-color">Board Color: </label>
+          <select id="board-color">
+            <option value="#334155">Default</option>
+          </select>
+          <a href="shop.html" id="shop-link" class="nav-button" style="display: inline-block; margin-left: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.9rem;">Shop</a>
         </div>
         
         <!-- CP07: Difficulty and Personality Dropdowns -->

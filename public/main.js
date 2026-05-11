@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const authContainer = document.getElementById('auth-container');
   const userInfo = document.getElementById('user-info');
   const currentUserSpan = document.getElementById('current-user');
+  const userCoinsSpan = document.getElementById('user-coins');
 
   // Game elements
   const gameSection = document.getElementById('game-section');
@@ -12,6 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const gameModeSelector = document.getElementById('game-mode');
   const playerOLabel = document.getElementById('player-o-label');
   
+  // Board Settings
+  const boardColorSelector = document.getElementById('board-color');
+  const shopLink = document.getElementById('shop-link');
+
   // CP07: AI Settings
   const aiSettings = document.getElementById('ai-settings');
   const difficultySelector = document.getElementById('difficulty');
@@ -45,9 +50,73 @@ document.addEventListener('DOMContentLoaded', () => {
   let timer;
   let timeLeft = 5;
 
+  // --- Shop Variables ---
+  let currentUser = null;
+
+  // --- Helper Functions ---
+  async function fetchUserData(username) {
+    const response = await fetch(`/user-data?username=${username}`);
+    if (!response.ok) {
+      console.error('Failed to fetch user data');
+      return { coins: 0, ownedBoards: ['default'], selectedBoard: '#334155' };
+    }
+    return await response.json();
+  }
+
+  async function updateUserCoins(username, coins) {
+    const response = await fetch('/update-coins', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, coins })
+    });
+    if (response.ok) {
+      const userData = await response.json();
+      userCoinsSpan.textContent = userData.coins;
+      return userData.coins;
+    }
+    return null;
+  }
+
+  function applyBoardColor(color) {
+    document.documentElement.style.setProperty('--board-color', color);
+    // For cells, use a slightly darker shade for contrast
+    if (color.startsWith('linear-gradient')) {
+      document.documentElement.style.setProperty('--cell-color', '#1e293b');
+    } else {
+      // Darken the color for cells
+      const cellColor = shadeColor(color, -20);
+      document.documentElement.style.setProperty('--cell-color', cellColor);
+    }
+  }
+
+  // Helper function to darken a color
+  function shadeColor(color, percent) {
+    let R = parseInt(color.substring(1,3), 16);
+    let G = parseInt(color.substring(3,5), 16);
+    let B = parseInt(color.substring(5,7), 16);
+    
+    R = parseInt(R * (100 + percent) / 100);
+    G = parseInt(G * (100 + percent) / 100);
+    B = parseInt(B * (100 + percent) / 100);
+    
+    R = (R<255)?R:255;
+    G = (G<255)?G:255;
+    B = (B<255)?B:255;
+    
+    R = Math.round(R);
+    G = Math.round(G);
+    B = Math.round(B);
+    
+    const RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+    const GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+    const BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+    
+    return "#" + RR + GG + BB;
+  }
+
   // --- CP05: Save Game Data ---
   // Save game result to history
-  function saveGameToHistory(winner) {
+  async function saveGameToHistory(winner) {
     const gameMode = gameModeSelector.value;
     const playerO = gameMode === 'pvai' ? 'AI' : 'Player 2';
 
@@ -62,6 +131,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (gameMode === 'pvai') {
       gameData.difficulty = difficultySelector.value;
       gameData.personality = personalitySelector.value;
+
+      // Award coins if the player beat the AI
+      if (winner === 'X') { // Player X (human) won
+        const difficulty = difficultySelector.value;
+        let coinsEarned = 0;
+        switch (difficulty) {
+          case 'Easy': coinsEarned = 10; break;
+          case 'Medium': coinsEarned = 15; break;
+          case 'Hard': coinsEarned = 20; break;
+        }
+        if (coinsEarned > 0 && currentUser) {
+          await updateUserCoins(currentUser, coinsEarned);
+        }
+      }
     }
 
     console.log('Saving game data:', gameData);
@@ -164,9 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // When the page loads, ask the server if we are already logged in
   fetch('/me')
     .then(res => res.json())
-    .then(data => {
+    .then(async (data) => {
       if (data.user) {
-        showLoggedIn(data.user);
+        currentUser = data.user;
+        await showLoggedIn(data.user);
       } else {
         showLoggedOut();
       }
@@ -174,15 +258,82 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(err => console.error('Session check failed:', err));
 
   // --- 3. UI TOGGLE FUNCTIONS ---
-  function showLoggedIn(username) {
+  async function showLoggedIn(username) {
     authContainer.style.display = 'none';
     userInfo.style.display = 'block';
     gameSection.style.display = 'block';
     currentUserSpan.textContent = username;
     checkpointsLink.style.display = 'none';
     leaderboardLink.style.display = 'inline-block';
+    shopLink.style.display = 'inline-block';
     updatePlayerOLabel();
     clearTimer();
+
+    // Fetch user data (coins, owned boards, selected board)
+    const userData = await fetchUserData(username);
+    userCoinsSpan.textContent = userData.coins || 0;
+    
+    // Populate board color selector
+    boardColorSelector.innerHTML = '';
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '#334155';
+    defaultOption.textContent = 'Default';
+    boardColorSelector.appendChild(defaultOption);
+
+    // Add owned boards to the selector
+    const boardColors = {
+      'red': '#ef4444',
+      'green': '#22c55e',
+      'blue': '#3b82f6',
+      'purple': '#a855f7',
+      'orange': '#f97316',
+      'rainbow': 'linear-gradient(45deg, #ef4444, #f97316, #fbbf24, #22c55e, #3b82f6, #a855f7)',
+      'gold': '#fbbf24'
+    };
+
+    const boardNames = {
+      'red': 'Red',
+      'green': 'Green',
+      'blue': 'Blue',
+      'purple': 'Purple',
+      'orange': 'Orange',
+      'rainbow': 'Rainbow',
+      'gold': 'Gold Shiny'
+    };
+
+    userData.ownedBoards.forEach(boardId => {
+      if (boardId !== 'default' && boardColors[boardId]) {
+        const option = document.createElement('option');
+        option.value = boardColors[boardId];
+        option.textContent = boardNames[boardId] || boardId;
+        boardColorSelector.appendChild(option);
+      }
+    });
+
+    // Set selected board
+    if (userData.selectedBoard) {
+      const selectedOption = boardColorSelector.querySelector(`option[value="${userData.selectedBoard}"]`);
+      if (selectedOption) {
+        selectedOption.selected = true;
+        applyBoardColor(userData.selectedBoard);
+      }
+    }
+
+    // Apply board color change listener
+    boardColorSelector.addEventListener('change', () => {
+      const selectedColor = boardColorSelector.value;
+      applyBoardColor(selectedColor);
+      // Save the selected board to user data
+      fetch('/equip-board', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          username: currentUser,
+          boardId: Object.keys(boardColors).find(key => boardColors[key] === selectedColor) || 'default',
+          color: selectedColor
+        })
+      });
+    });
   }
 
   function showLoggedOut() {
@@ -190,9 +341,12 @@ document.addEventListener('DOMContentLoaded', () => {
     userInfo.style.display = 'none';
     gameSection.style.display = 'none';
     currentUserSpan.textContent = '';
+    userCoinsSpan.textContent = '0';
     checkpointsLink.style.display = 'inline-block';
     leaderboardLink.style.display = 'inline-block';
+    shopLink.style.display = 'none';
     clearTimer();
+    currentUser = null;
   }
 
   function updatePlayerOLabel() {
@@ -226,7 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const data = await res.json();
     if (res.ok) {
-      showLoggedIn(data.user);
+      currentUser = data.user;
+      await showLoggedIn(data.user);
     } else {
       alert(data.error || 'Registration failed');
     }
@@ -244,7 +399,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const data = await res.json();
     if (res.ok) {
-      showLoggedIn(data.user);
+      currentUser = data.user;
+      await showLoggedIn(data.user);
     } else {
       alert(data.error || 'Login failed');
     }

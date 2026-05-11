@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic Tac Toe Shop</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+      h1 {
+        font-family: 'Pacifico', cursive;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Tic Tac Toe Shop</h1>
+      <a href="/" class="nav-button">Back to Game</a>
+      
+      <section id="shop-section">
+        <div id="user-coins-display" style="margin: 1rem 0; font-size: 1.2rem;">
+          Your Coins: <span id="user-coins">0</span>
+        </div>
+        
+        <h2>Board Colors</h2>
+        <div class="shop-container">
+          <div class="shop-item">
+            <div class="shop-item-preview" style="background: #334155;"></div>
+            <div class="shop-item-info">
+              <div class="shop-item-name">Default Board</div>
+              <div class="shop-item-price">Free</div>
+            </div>
+            <div class="shop-item-actions">
+              <button class="equip-btn" data-board-id="default" data-color="#334155" disabled>Equipped</button>
+            </div>
+          </div>
+          
+          <div class="shop-item">
+            <div class="shop-item-preview" style="background: #ef4444;"></div>
+            <div class="shop-item-info">
+              <div class="shop-item-name">Red Board</div>
+              <div class="shop-item-price">15 Coins</div>
+            </div>
+            <div class="shop-item-actions">
+              <button class="buy-btn" data-board-id="red" data-color="#ef4444" data-price="15">Buy</button>
+              <button class="equip-btn" data-board-id="red" data-color="#ef4444" style="display: none;">Equip</button>
+            </div>
+          </div>
+          
+          <div class="shop-item">
+            <div class="shop-item-preview" style="background: #22c55e;"></div>
+            <div class="shop-item-info">
+              <div class="shop-item-name">Green Board</div>
+              <div class="shop-item-price">15 Coins</div>
+            </div>
+            <div class="shop-item-actions">
+              <button class="buy-btn" data-board-id="green" data-color="#22c55e" data-price="15">Buy</button>
+              <button class="equip-btn" data-board-id="green" data-color="#22c55e" style="display: none;">Equip</button>
+            </div>
+          </div>
+          
+          <div class="shop-item">
+            <div class="shop-item-preview" style="background: #3b82f6;"></div>
+            <div class="shop-item-info">
+              <div class="shop-item-name">Blue Board</div>
+              <div class="shop-item-price">15 Coins</div>
+            </div>
+            <div class="shop-item-actions">
+              <button class="buy-btn" data-board-id="blue" data-color="#3b82f6" data-price="15">Buy</button>
+              <button class="equip-btn" data-board-id="blue" data-color="#3b82f6" style="display: none;">Equip</button>
+            </div>
+          </div>
+          
+          <div class="shop-item">
+            <div class="shop-item-preview" style="background: #a855f7;"></div>
+            <div class="shop-item-info">
+              <div class="shop-item-name">Purple Board</div>
+              <div class="shop-item-price">15 Coins</div>
+            </div>
+            <div class="shop-item-actions">
+              <button class="buy-btn" data-board-id="purple" data-color="#a855f7" data-price="15">Buy</button>
+              <button class="equip-btn" data-board-id="purple" data-color="#a855f7" style="display: none;">Equip</button>
+            </div>
+          </div>
+          
+          <div class="shop-item">
+            <div class="shop-item-preview" style="background: #f97316;"></div>
+            <div class="shop-item-info">
+              <div class="shop-item-name">Orange Board</div>
+              <div class="shop-item-price">15 Coins</div>
+            </div>
+            <div class="shop-item-actions">
+              <button class="buy-btn" data-board-id="orange" data-color="#f97316" data-price="15">Buy</button>
+              <button class="equip-btn" data-board-id="orange" data-color="#f97316" style="display: none;">Equip</button>
+            </div>
+          </div>
+          
+          <div class="shop-item">
+            <div class="shop-item-preview" style="background: linear-gradient(45deg, #ef4444, #f97316, #fbbf24, #22c55e, #3b82f6, #a855f7);"></div>
+            <div class="shop-item-info">
+              <div class="shop-item-name">Rainbow Board</div>
+              <div class="shop-item-price">25 Coins</div>
+            </div>
+            <div class="shop-item-actions">
+              <button class="buy-btn" data-board-id="rainbow" data-color="linear-gradient(45deg, #ef4444, #f97316, #fbbf24, #22c55e, #3b82f6, #a855f7)" data-price="25">Buy</button>
+              <button class="equip-btn" data-board-id="rainbow" data-color="linear-gradient(45deg, #ef4444, #f97316, #fbbf24, #22c55e, #3b82f6, #a855f7)" style="display: none;">Equip</button>
+            </div>
+          </div>
+          
+          <div class="shop-item">
+            <div class="shop-item-preview" style="background: #fbbf24;"></div>
+            <div class="shop-item-info">
+              <div class="shop-item-name">Gold Shiny Board</div>
+              <div class="shop-item-price">30 Coins</div>
+            </div>
+            <div class="shop-item-actions">
+              <button class="buy-btn" data-board-id="gold" data-color="#fbbf24" data-price="30">Buy</button>
+              <button class="equip-btn" data-board-id="gold" data-color="#fbbf24" style="display: none;">Equip</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/shop.js"></script>
+  </body>
+</html>
