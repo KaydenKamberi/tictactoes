@@ -18,6 +18,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const personalitySelector = document.getElementById('personality');
   const aiComment = document.getElementById('ai-comment');
 
+  // CP09: Time Trial Mode
+  const timeTrialToggle = document.getElementById('time-trial-toggle');
+  const timerDisplay = document.getElementById('timer-display');
+  const timerValue = document.getElementById('timer-value');
+
   // Input fields and buttons
   const regUsernameInput = document.getElementById('reg-username');
   const regPasswordInput = document.getElementById('reg-password');
@@ -34,6 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const scoreXSpan = document.getElementById('score-x');
   const scoreOSpan = document.getElementById('score-o');
   const playAgainBtn = document.getElementById('play-again-btn');
+
+  // --- CP09: Time Trial Mode Variables ---
+  let timeTrialMode = false;
+  let timer;
+  let timeLeft = 5;
 
   // --- CP05: Save Game Data ---
   // Save game result to history
@@ -74,6 +84,47 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(err => {
       console.error('Failed to save game:', err);
     });
+  }
+
+  // --- CP09: Time Trial Mode Functions ---
+  function startTimer() {
+    clearTimer();
+    timeLeft = 5;
+    timerValue.textContent = timeLeft;
+    timerDisplay.style.display = 'block';
+    timer = setInterval(() => {
+      timeLeft--;
+      timerValue.textContent = timeLeft;
+      if (timeLeft <= 0) {
+        clearTimer();
+        // Current player loses, opposite player wins
+        const winner = currentPlayer === 'X' ? 'O' : 'X';
+        const gameMode = gameModeSelector.value;
+        const winnerLabel = gameMode === 'pvai' && winner === 'O' ? 'AI' : `Player ${winner}`;
+        turnIndicator.textContent = `Time's up! ${winnerLabel} wins!`;
+        gameActive = false;
+
+        // Update scores
+        if (winner === 'X') {
+          scoreX++;
+          scoreXSpan.textContent = scoreX;
+        } else {
+          scoreO++;
+          scoreOSpan.textContent = scoreO;
+        }
+
+        saveGameToHistory(winner);
+        playAgainBtn.style.display = 'inline-block';
+      }
+    }, 1000);
+  }
+
+  function clearTimer() {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+    timerDisplay.style.display = 'none';
   }
 
   // --- Groq API Integration via Backend ---
@@ -131,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkpointsLink.style.display = 'none';
     leaderboardLink.style.display = 'inline-block';
     updatePlayerOLabel();
+    clearTimer();
   }
 
   function showLoggedOut() {
@@ -140,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentUserSpan.textContent = '';
     checkpointsLink.style.display = 'inline-block';
     leaderboardLink.style.display = 'inline-block';
+    clearTimer();
   }
 
   function updatePlayerOLabel() {
@@ -149,6 +202,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // CP07: Show AI settings only in PvAI mode
     aiSettings.style.display = gameMode === 'pvai' ? 'flex' : 'none';
   }
+
+  // --- CP09: Time Trial Mode Toggle ---
+  timeTrialToggle.addEventListener('change', () => {
+    timeTrialMode = timeTrialToggle.checked;
+    if (timeTrialMode && gameActive) {
+      startTimer();
+    } else {
+      clearTimer();
+    }
+  });
 
   // --- 4. AUTHENTICATION LOGIC ---
   regBtn.addEventListener('click', async () => {
@@ -228,11 +291,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Reset timer on move
+    if (timeTrialMode) {
+      clearTimer();
+    }
+
     // Human move (X or O in PvP, X in PvAI)
     boardState[cellIndex] = currentPlayer;
     clickedCell.textContent = currentPlayer;
-
-    // Clear AI comment on new move
     aiComment.textContent = '';
 
     checkWinOrDraw();
@@ -256,7 +322,12 @@ document.addEventListener('DOMContentLoaded', () => {
       currentPlayer = 'X';
       if (gameActive) {
         turnIndicator.textContent = "Player X's turn";
+        if (timeTrialMode) {
+          startTimer(); // Restart timer for Player X
+        }
       }
+    } else if (timeTrialMode) {
+      startTimer(); // Restart timer for next player
     } else {
       // PvP mode: Update turn indicator
       turnIndicator.textContent = `Player ${currentPlayer}'s turn`;
@@ -320,7 +391,10 @@ document.addEventListener('DOMContentLoaded', () => {
     turnIndicator.textContent = `Player ${currentPlayer}'s turn`;
     playAgainBtn.style.display = 'none';
     aiComment.textContent = '';
-
+    clearTimer();
+    if (timeTrialMode) {
+      startTimer();
+    }
     const cells = document.querySelectorAll('.cell');
     cells.forEach(cell => {
       cell.textContent = '';
