@@ -289,12 +289,15 @@ app.post('/purchase-board', (req, res) => {
   }
 
   const user = users[userIndex];
-  if ((user.coins || 0) < price) {
+  const userCoins = user.coins || 0;
+  const boardPrice = parseInt(price);
+  
+  if (userCoins < boardPrice) {
     return res.status(400).json({ error: 'Not enough coins' });
   }
 
   // Deduct coins and add board to ownedBoards
-  user.coins -= price;
+  user.coins = userCoins - boardPrice;
   if (!user.ownedBoards) {
     user.ownedBoards = ['default'];
   }
