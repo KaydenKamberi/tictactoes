@@ -114,4 +114,18 @@
   </section>
   </body>
   </html>
-    
+    <section id="cp07">
+      <h2>CP07-personality</h2>
+      <p><strong>The tag:</strong> <code>CP07-personality</code></p>
+      <p><strong>GitHub Link:</strong> <a href="YOUR_GITHUB_LINK_HERE">View Code for CP07</a></p>
+
+      <p><strong>What I built:</strong> I added "flavor" to the AI by implementing three distinct personalities: Passive-Aggressive Robot, Kind Coach, and Angry Pirate. I also added difficulty levels. The AI now receives these settings and uses them to change its "trash talk" or encouragement, which is displayed in the game UI.</p>
+
+      <p><strong>What was hard:</strong> Getting the AI to strictly follow the JSON format while also being creative with its personality was tricky. Sometimes the AI would try to add conversational text outside of the JSON brackets, which broke the frontend. I fixed this by using Groq's "JSON Mode" and adding strict system instructions.</p>
+
+      <p><strong>What I'd do differently:</strong> I want to add more specific "triggers" for the comments. For example, if the player makes a move that blocks the AI, the "Angry Pirate" should have a specific line for being thwarted rather than just a general pirate comment.</p>
+
+      <p><strong>AI usage note:</strong> I used AI to help generate the specific pirate slang and passive-aggressive phrases used in the system prompts to make the personalities feel more authentic.</p>
+
+      <p><strong>A/B testing note:</strong> I experimented with the "Temperature" setting in the API call. I tried a high temperature (0.7) for more creative comments, but it made the AI's moves inconsistent. I settled on a low temperature (0.1) to ensure the moves were logical, while relying on the prompt itself to provide the personality.</p>
+    </section>

@@ -4,12 +4,17 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
+// Required Tech Stack: Groq SDK
+const Groq = require('groq-sdk');
 
 const app = express();
 const PORT = process.env.PORT || 5173;
 
 const DATA_DIR = path.join(__dirname, 'data');
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
+
+// Initialize Groq client with your API Key
+const groq = new Groq({ apiKey: GROQ_API_KEY });
 
 // Ensure the data directory exists
 if (!fs.existsSync(DATA_DIR)) {
@@ -84,14 +89,12 @@ app.post('/save-game', (req, res) => {
 // CP07: Updated endpoint to get AI move with difficulty and personality
 app.post('/get-ai-move', async (req, res) => {
   const { boardState, difficulty, personality } = req.body;
-  const apiUrl = 'https://api.groq.com/v1/chat/completions';
 
   // Fallback function for invalid moves or JSON errors
   function getFallbackMove() {
     const emptyIndices = boardState.map((cell, index) => cell === '' ? index : null).filter(val => val !== null);
     const randomMove = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
-    
-    // Generate fallback comment based on personality
+
     let fallbackComment = '';
     switch (personality) {
       case 'Passive-Aggressive Robot':
@@ -106,11 +109,10 @@ app.post('/get-ai-move', async (req, res) => {
       default:
         fallbackComment = "AI is thinking...";
     }
-    
+
     return { move: randomMove, comment: fallbackComment };
   }
 
-  // If Groq API key is not set, use fallback
   if (!GROQ_API_KEY) {
     console.error('Groq API key is not set in environment variables.');
     const fallback = getFallbackMove();
@@ -119,26 +121,21 @@ app.post('/get-ai-move', async (req, res) => {
 
   // Construct dynamic prompt based on difficulty and personality
   let systemPrompt = '';
-  
-  // Difficulty-based instructions
+
   switch (difficulty) {
     case 'Easy':
-      systemPrompt += 'You are playing Tic Tac Toe as "O" on EASY difficulty. ';
-      systemPrompt += 'Make obvious mistakes or pick random open spots. ';
+      systemPrompt += 'You are playing Tic Tac Toe as "O" on EASY difficulty. Make obvious mistakes or pick random open spots. ';
       break;
     case 'Medium':
-      systemPrompt += 'You are playing Tic Tac Toe as "O" on MEDIUM difficulty. ';
-      systemPrompt += 'Play decently but miss complex traps. ';
+      systemPrompt += 'You are playing Tic Tac Toe as "O" on MEDIUM difficulty. Play decently but miss complex traps. ';
       break;
     case 'Hard':
-      systemPrompt += 'You are playing Tic Tac Toe as "O" on HARD difficulty. ';
-      systemPrompt += 'Play perfectly like the Minimax algorithm. ';
+      systemPrompt += 'You are playing Tic Tac Toe as "O" on HARD difficulty. Play perfectly like the Minimax algorithm. ';
       break;
     default:
       systemPrompt += 'You are playing Tic Tac Toe as "O". ';
   }
 
-  // Personality-based instructions
   switch (personality) {
     case 'Passive-Aggressive Robot':
       systemPrompt += 'Respond with a snarky, backhanded compliment in a robotic tone. ';
@@ -153,51 +150,26 @@ app.post('/get-ai-move', async (req, res) => {
       systemPrompt += 'Respond with a neutral comment. ';
   }
 
-  // Final instructions for output format
-  systemPrompt += `Given the current board state: [${boardState.map(cell => cell || ' ').join(', ')}], `;
-  systemPrompt += 'return a JSON object with the move index (0-8) and a comment. ';
-  systemPrompt += 'The JSON must be in this exact format: {"move": <integer 0-8>, "comment": "<string>"}. ';
-  systemPrompt += 'Do NOT include any other text or explanations.';
-
-  const requestBody = {
-    model: 'llama3-8b-8192',
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: 'Make your move.' }
-    ],
-    temperature: 0.1,
-    max_tokens: 100,
-    response_format: { type: 'json_object' } // Use Groq's JSON mode
-  };
+  systemPrompt += `Current board state: [${boardState.map(cell => cell || ' ').join(', ')}]. `;
+  systemPrompt += 'Return ONLY a JSON object: {"move": <0-8>, "comment": "<string>"}.';
 
   try {
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
+    // FIX: Switched from manual fetch to official Groq SDK to resolve 400 Bad Request errors
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: 'Make your move.' }
+      ],
+      model: 'llama3-8b-8192',
+      temperature: 0.1,
+      max_tokens: 150,
+      response_format: { type: 'json_object' } // Groq JSON mode
     });
 
-    if (!response.ok) {
-      throw new Error(`Groq API error: ${response.statusText}`);
-    }
+    const responseContent = chatCompletion.choices[0].message.content.trim();
+    const moveData = JSON.parse(responseContent);
 
-    const data = await response.json();
-    
-    // Parse the JSON response from the LLM
-    let moveData;
-    try {
-      // The response should already be JSON due to response_format
-      const responseContent = data.choices[0].message.content.trim();
-      moveData = JSON.parse(responseContent);
-    } catch (parseError) {
-      console.error('Failed to parse LLM response as JSON:', parseError);
-      throw parseError;
-    }
-
-    // Validate the move
+    // Validate the move is a number and the cell is empty
     if (
       typeof moveData.move !== 'number' ||
       moveData.move < 0 ||
@@ -208,16 +180,13 @@ app.post('/get-ai-move', async (req, res) => {
       throw new Error('Invalid move');
     }
 
-    // Return the move and comment
     res.json({ 
       moveIndex: moveData.move, 
       comment: moveData.comment || "AI made a move." 
     });
 
   } catch (error) {
-    console.error('Error calling Groq API or processing response:', error);
-    
-    // Use fallback mechanism
+    console.error('Groq SDK Error:', error);
     const fallback = getFallbackMove();
     res.json({ 
       moveIndex: fallback.move, 
