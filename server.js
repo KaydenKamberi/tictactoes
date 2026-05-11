@@ -195,6 +195,48 @@ app.post('/get-ai-move', async (req, res) => {
   }
 });
 
+// New endpoint for AI stats
+app.get('/ai-stats', (req, res) => {
+  const games = readJson('games.json', []);
+  const aiGames = games.filter(game => game.playerO === 'AI');
+
+  // Calculate win rates by difficulty and personality
+  const stats = {};
+
+  aiGames.forEach(game => {
+    const { difficulty, personality, winner } = game;
+    if (!difficulty || !personality) return;
+
+    const key = `${difficulty}-${personality}`;
+    if (!stats[key]) {
+      stats[key] = { total: 0, wins: 0 };
+    }
+    stats[key].total++;
+    if (winner === 'O') {
+      stats[key].wins++;
+    }
+  });
+
+  // Convert to array and calculate win rates
+  const result = Object.entries(stats).map(([key, { total, wins }]) => {
+    const [difficulty, personality] = key.split('-');
+    return {
+      difficulty,
+      personality,
+      winRate: total > 0 ? (wins / total * 100).toFixed(2) + '%' : '0%',
+      totalGames: total,
+    };
+  });
+
+  res.json(result);
+});
+
+// Endpoint to fetch all users
+app.get('/users', (req, res) => {
+  const users = readJson('users.json', []);
+  res.json(users);
+});
+
 app.post('/register', (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) {
